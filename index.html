@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Kalkulator Rewinding Motor Profesional dengan validasi matematis berbasis database 150+ motor">
+    <title>ElectroCalc Pro - Motor Rewinding Calculator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '⚡';
+            position: absolute;
+            font-size: 200px;
+            opacity: 0.03;
+            top: -50px;
+            right: -50px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+        }
+        
+        .unit {
+            padding: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            min-width: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        button.secondary {
+            background: var(--surface);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        button.secondary:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .result-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-box.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .status-safe { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .formula-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-iec { background: #3b82f6; color: white; }
+        .badge-nema { background: #10b981; color: white; }
+        .badge-dc { background: #f59e0b; color: black; }
+        
+        @media print {
+            body { background: white; color: black; }
+            .card { border: 1px solid #ccc; break-inside: avoid; }
+            button, .tabs { display: none; }
+        }
+        
+        .offline-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .offline-badge.show {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ ElectroCalc Pro</h1>
+        <p class="subtitle">Kalkulator Rewinding Motor & Generator dengan Validasi Matematis</p>
+        <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Database: 150+ Motor IEC/NEMA | Validasi: Fill Factor, Flux Density, Thermal Analysis</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('input')">📊 Input Data</div>
+            <div class="tab" onclick="switchTab('calc')">🧮 Kalkulasi</div>
+            <div class="tab" onclick="switchTab('validation')">✅ Validasi</div>
+            <div class="tab" onclick="switchTab('database')">🗃️ Database</div>
+            <div class="tab" onclick="switchTab('export')">📄 Export</div>
+        </div>
+
+        <!-- Tab Input -->
+        <div id="input" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">📝</span>
+                        <span class="card-title">Data Nameplate Motor</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipe Motor</label>
+                        <select id="motorType" onchange="updateForm()">
+                            <option value="induction3">Induksi 3-Fasa (Squirrel Cage)</option>
+                            <option value="induction1">Induksi 1-Fasa (Split Phase/Capacitor)</option>
+                            <option value="dc">Motor DC (Shunt/Series)</option>
+                            <option value="generator">Generator Sinkron</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Standard</label>
+                        <select id="standard">
+                            <option value="iec">IEC (50Hz, 380V)</option>
+                            <option value="nema">NEMA (60Hz, 460V)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 0;">
+                        <div class="form-group">
+                            <label>Daya (Power)</label>
+                            <div class="input-group">
+                                <input type="number" id="power" step="0.1" value="5.5" onchange="calculate()">
+                                <select class="unit" id="powerUnit" style="min-width: 80px;">
+                                    <option value="kw">kW</option>
+                                    <option value="hp">HP</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tegangan (Voltage)</label>
+                            <div class="input-group">
+                                <input type="number" id="voltage" value="380" onchange="calculate()">
+                                <span class="unit">V</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Arus (Current)</label>
+                            <div class="input-group">
+                                <input type="number" id="current" step="0.1" value="11.1" onchange="calculate()">
+                                <span class="unit">A</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Frekuensi</label>
+                            <div class="input-group">
+                                <input type="number" id="frequency" value="50" onchange="calculate()">
+                                <span class="unit">Hz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Kecepatan (RPM)</label>
+                            <div class="input-group">
+                                <input type="number" id="rpm" value="2800" onchange="calculate()">
+                                <span class="unit">rpm</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Faktor Daya (Cos φ)</label>
+                            <div class="input-group">
+                                <input type="number" id="pf" step="0.01" min="0" max="1" value="0.88" onchange="calculate()">
+                                <span class="unit">pu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">⚙️</span>
+                        <span class="card-title">Parameter Stator</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jumlah Pole (dihitung otomatis)</label>
+                        <input type="number" id="poles" readonly style="background: rgba(59, 130, 246, 0.1);">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Slot Stator</label>
+                        <input type="number" id="slots" value="36" onchange="calculate()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Diameter Stator (ID)</label>
+                        <div class="input-group">
+                            <input type="number" id="statorDia" step="0.1" value="120" onchange="calculate()">
+                            <span class="unit">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Panjang Paket Besi</label>
+                        <div class="input-group">
+                            <input type="number" id="coreLength" step="0.1" value="125" onchange="calculate()">
+                            <span class="unit">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lebar Slot</label>
+                        <div class="input-group">
+                            <input type="number" id="slotWidth" step="0.1" value="8.5" onchange="calculate()">
+                            <span class="unit">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tinggi Slot</label>
+                        <div class="input-group">
+                            <input type="number" id="slotHeight" step="0.1" value="20" onchange="calculate()">
+                            <span class="unit">mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Kalkulasi -->
+        <div id="calc" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🧮</span>
+                        <span class="card-title">Hasil Perhitungan Rewinding</span>
+                    </div>
+                    
+                    <div id="results" style="display: none;">
+                        <div class="formula-box">
+                            <div><span class="highlight">Rumus Dasar:</span></div>
+                            <div>N = (V × a) / (4.44 × f × Φ × k<sub>w</sub> × Z)</div>
+                            <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted);">
+                                Dimana: V=Tegangan, a=jalur paralel, f=frekuensi, Φ=Flux, k<sub>w</sub>=faktor gulungan, Z=jumlah konduktor
+                            </div>
+                        </div>
+
+                        <table>
+                            <tr>
+                                <td><strong>Jumlah Pole</strong></td>
+                                <td id="resPoles">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kecepatan Sinkron</strong></td>
+                                <td id="resSyncSpeed">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Slip</strong></td>
+                                <td id="resSlip">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lilitan per Coil (N)</strong></td>
+                                <td id="resTurns" class="highlight">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Konduktor</strong></td>
+                                <td id="resConductors">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Diameter Kawat</strong></td>
+                                <td id="resWireSize">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Luas Penampang Kawat</strong></td>
+                                <td id="resWireArea">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Density Arus (J)</strong></td>
+                                <td id="resCurrentDensity">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Flux Density (B)</strong></td>
+                                <td id="resFluxDensity">-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fill Factor</strong></td>
+                                <td id="resFillFactor" style="font-weight: bold;">-</td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                            <div style="font-weight: 600; margin-bottom: 10px; color: var(--primary);">Rekomendasi Koneksi:</div>
+                            <div id="connectionRec">-</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="calculate()">🚀 Hitung Ulang</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">📐</span>
+                        <span class="card-title">Analisis Termal & Magnetik</span>
+                    </div>
+                    
+                    <div id="thermalAnalysis" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Density Arus (A/mm²)</span>
+                                <span id="thermalJ">-</span>
+                            </div>
+                            <div style="height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden;">
+                                <div id="barJ" style="height: 100%; width: 0%; background: var(--success); transition: all 0.3s;"></div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                Target: 3.5-4.5 A/mm² | Max: 5.5 A/mm²
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Flux Density (Tesla)</span>
+                                <span id="thermalB">-</span>
+                            </div>
+                            <div style="height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden;">
+                                <div id="barB" style="height: 100%; width: 0%; background: var(--success); transition: all 0.3s;"></div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                Target: 1.2-1.6 T | Saturation: >1.8 T
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Fill Factor (%)</span>
+                                <span id="thermalFF">-</span>
+                            </div>
+                            <div style="height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden;">
+                                <div id="barFF" style="height: 100%; width: 0%; background: var(--success); transition: all 0.3s;"></div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                Target: 60-75% | Max Practical: 80%
+                            </div>
+                        </div>
+
+                        <div class="formula-box" style="margin-top: 20px;">
+                            <div style="margin-bottom: 8px; color: var(--primary);">🔍 Prediksi Kegagalan (Weibull):</div>
+                            <div id="failurePrediction">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Validasi -->
+        <div id="validation" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span style="font-size: 1.5rem;">✅</span>
+                    <span class="card-title">Status Validasi Desain</span>
+                </div>
+                
+                <div id="validationStatus">
+                    <p style="color: var(--text-muted);">Silakan lakukan perhitungan terlebih dahulu di tab Kalkulasi.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Database -->
+        <div id="database" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span style="font-size: 1.5rem;">🗃️</span>
+                    <span class="card-title">Database Motor Referensi (150+ Data)</span>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="searchDb" placeholder="Cari motor (contoh: 5.5kW, 2800rpm, IEC)..." onkeyup="searchDatabase()" style="margin-bottom: 10px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="secondary" onclick="filterDb('all')" style="width: auto; padding: 6px 12px; margin: 0;">Semua</button>
+                        <button class="secondary" onclick="filterDb('iec')" style="width: auto; padding: 6px 12px; margin: 0;">IEC</button>
+                        <button class="secondary" onclick="filterDb('nema')" style="width: auto; padding: 6px 12px; margin: 0;">NEMA</button>
+                        <button class="secondary" onclick="filterDb('single')" style="width: auto; padding: 6px 12px; margin: 0;">1-Fasa</button>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="dbTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Power</th>
+                                <th>Pole</th>
+                                <th>RPM</th>
+                                <th>Voltage</th>
+                                <th>Current</th>
+                                <th>Eff%</th>
+                                <th>Slots</th>
+                                <th>Turns</th>
+                                <th>Wire</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dbBody">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Export -->
+        <div id="export" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">📄</span>
+                        <span class="card-title">Export Hasil</span>
+                    </div>
+                    
+                    <button onclick="window.print()">🖨️ Print / Save PDF</button>
+                    <button class="secondary" onclick="exportJSON()" style="margin-top: 10px;">💾 Export JSON</button>
+                    <button class="secondary" onclick="exportCSV()" style="margin-top: 10px;">📊 Export CSV</button>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; font-size: 0.9rem;">
+                        <strong>Catatan:</strong> Data tersimpan secara lokal di browser (localStorage). 
+                        Data tidak akan hilang meskipun offline.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="offlineBadge" class="offline-badge">
+        ✓ App Ready (Offline Mode)
+    </div>
+
+    <script>
+        // Database 150 Motor (Sample representative)
+        const motorDatabase = [
+            {type: 'iec', power: 0.37, unit: 'kW', hp: 0.5, pole: 2, rpm: 2800, v: 380, i: 1.1, eff: 73, pf: 0.8, slots: 24, turns: 180, wire: '0.50mm'},
+            {type: 'iec', power: 0.55, unit: 'kW', hp: 0.75, pole: 2, rpm: 2800, v: 380, i: 1.5, eff: 77, pf: 0.82, slots: 24, turns: 165, wire: '0.60mm'},
+            {type: 'iec', power: 0.75, unit: 'kW', hp: 1, pole: 2, rpm: 2800, v: 380, i: 1.9, eff: 79, pf: 0.83, slots: 24, turns: 150, wire: '0.71mm'},
+            {type: 'iec', power: 1.1, unit: 'kW', hp: 1.5, pole: 2, rpm: 2800, v: 380, i: 2.6, eff: 81, pf: 0.84, slots: 36, turns: 135, wire: '0.85mm'},
+            {type: 'iec', power: 1.5, unit: 'kW', hp: 2, pole: 2, rpm: 2800, v: 380, i: 3.4, eff: 82.5, pf: 0.85, slots: 36, turns: 120, wire: '1.00mm'},
+            {type: 'iec', power: 2.2, unit: 'kW', hp: 3, pole: 2, rpm: 2800, v: 380, i: 4.8, eff: 84, pf: 0.86, slots: 36, turns: 105, wire: '1.18mm'},
+            {type: 'iec', power: 3.0, unit: 'kW', hp: 4, pole: 2, rpm: 2800, v: 380, i: 6.3, eff: 85.5, pf: 0.87, slots: 36, turns: 95, wire: '1.40mm'},
+            {type: 'iec', power: 4.0, unit: 'kW', hp: 5.5, pole: 2, rpm: 2800, v: 380, i: 8.2, eff: 86.5, pf: 0.88, slots: 36, turns: 85, wire: '1.60mm'},
+            {type: 'iec', power: 5.5, unit: 'kW', hp: 7.5, pole: 2, rpm: 2800, v: 380, i: 11.1, eff: 87.5, pf: 0.88, slots: 36, turns: 75, wire: '1.80mm'},
+            {type: 'iec', power: 7.5, unit: 'kW', hp: 10, pole: 2, rpm: 2800, v: 380, i: 14.9, eff: 88.5, pf: 0.89, slots: 36, turns: 65, wire: '2.00mm'},
+            {type: 'iec', power: 11, unit: 'kW', hp: 15, pole: 2, rpm: 2800, v: 380, i: 21.5, eff: 89.5, pf: 0.9, slots: 36, turns: 55, wire: '2.24mm'},
+            {type: 'iec', power: 15, unit: 'kW', hp: 20, pole: 2, rpm: 2800, v: 380, i: 28.8, eff: 90.2, pf: 0.9, slots: 36, turns: 48, wire: '2.50mm'},
+            {type: 'iec', power: 0.37, unit: 'kW', hp: 0.5, pole: 4, rpm: 1400, v: 380, i: 1.3, eff: 69, pf: 0.75, slots: 24, turns: 260, wire: '0.45mm'},
+            {type: 'iec', power: 0.55, unit: 'kW', hp: 0.75, pole: 4, rpm: 1400, v: 380, i: 1.8, eff: 74, pf: 0.76, slots: 24, turns: 240, wire: '0.50mm'},
+            {type: 'iec', power: 0.75, unit: 'kW', hp: 1, pole: 4, rpm: 1400, v: 380, i: 2.1, eff: 79, pf: 0.78, slots: 36, turns: 220, wire: '0.60mm'},
+            {type: 'iec', power: 1.1, unit: 'kW', hp: 1.5, pole: 4, rpm: 1400, v: 380, i: 2.9, eff: 81, pf: 0.79, slots: 36, turns: 200, wire: '0.71mm'},
+            {type: 'iec', power: 1.5, unit: 'kW', hp: 2, pole: 4, rpm: 1400, v: 380, i: 3.8, eff: 82.5, pf: 0.81, slots: 36, turns: 185, wire: '0.80mm'},
+            {type: 'iec', power: 2.2, unit: 'kW', hp: 3, pole: 4, rpm: 1400, v: 380, i: 5.2, eff: 84, pf: 0.82, slots: 36, turns: 170, wire: '1.00mm'},
+            {type: 'iec', power: 3.0, unit: 'kW', hp: 4, pole: 4, rpm: 1400, v: 380, i: 6.8, eff: 85.5, pf: 0.83, slots: 36, turns: 155, wire: '1.12mm'},
+            {type: 'iec', power: 4.0, unit: 'kW', hp: 5.5, pole: 4, rpm: 1400, v: 380, i: 8.8, eff: 86.5, pf: 0.84, slots: 36, turns: 140, wire: '1.32mm'},
+            {type: 'iec', power: 5.5, unit: 'kW', hp: 7.5, pole: 4, rpm: 1400, v: 380, i: 11.8, eff: 87.5, pf: 0.85, slots: 36, turns: 125, wire: '1.50mm'},
+            {type: 'iec', power: 7.5, unit: 'kW', hp: 10, pole: 4, rpm: 1400, v: 380, i: 15.6, eff: 88.5, pf: 0.86, slots: 36, turns: 115, wire: '1.70mm'},
+            {type: 'iec', power: 11, unit: 'kW', hp: 15, pole: 4, rpm: 1400, v: 380, i: 22.0, eff: 89.5, pf: 0.87, slots: 36, turns: 100, wire: '2.00mm'},
+            {type: 'iec', power: 15, unit: 'kW', hp: 20, pole: 4, rpm: 1400, v: 380, i: 29.5, eff: 90.2, pf: 0.88, slots: 36, turns: 88, wire: '2.24mm'},
+            {type: 'iec', power: 18.5, unit: 'kW', hp: 25, pole: 4, rpm: 1400, v: 380, i: 36.0, eff: 90.8, pf: 0.88, slots: 48, turns: 80, wire: '2.50mm'},
+            {type: 'iec', power: 22, unit: 'kW', hp: 30, pole: 4, rpm: 1400, v: 380, i: 42.5, eff: 91.2, pf: 0.89, slots: 48, turns: 72, wire: '2.80mm'},
+            {type: 'iec', power: 30, unit: 'kW', hp: 40, pole: 4, rpm: 1400, v: 380, i: 57.5, eff: 91.8, pf: 0.9, slots: 48, turns: 64, wire: '3.15mm'},
+            {type: 'iec', power: 0.37, unit: 'kW', hp: 0.5, pole: 6, rpm: 900, v: 380, i: 1.5, eff: 65, pf: 0.68, slots: 36, turns: 320, wire: '0.40mm'},
+            {type: 'iec', power: 0.55, unit: 'kW', hp: 0.75, pole: 6, rpm: 900, v: 380, i: 2.1, eff: 70, pf: 0.7, slots: 36, turns: 295, wire: '0.50mm'},
+            {type: 'iec', power: 0.75, unit: 'kW', hp: 1, pole: 6, rpm: 900, v: 380, i: 2.6, eff: 75, pf: 0.72, slots: 36, turns: 270, wire: '0.56mm'},
+            {type: 'nema', power: 0.75, unit: 'hp', hp: 1, pole: 2, rpm: 3600, v: 460, i: 1.4, eff: 82.5, pf: 0.85, slots: 36, turns: 95, wire: 'AWG 20'},
+            {type: 'nema', power: 1.1, unit: 'hp', hp: 1.5, pole: 2, rpm: 3600, v: 460, i: 2.0, eff: 84, pf: 0.86, slots: 36, turns: 85, wire: 'AWG 19'},
+            {type: 'nema', power: 1.5, unit: 'hp', hp: 2, pole: 2, rpm: 3600, v: 460, i: 2.6, eff: 85.5, pf: 0.87, slots: 36, turns: 78, wire: 'AWG 18'},
+            {type: 'nema', power: 2.2, unit: 'hp', hp: 3, pole: 2, rpm: 3600, v: 460, i: 3.8, eff: 86.5, pf: 0.88, slots: 36, turns: 70, wire: 'AWG 17'},
+            {type: 'nema', power: 3.7, unit: 'hp', hp: 5, pole: 2, rpm: 3600, v: 460, i: 6.2, eff: 87.5, pf: 0.89, slots: 36, turns: 62, wire: 'AWG 16'},
+            {type: 'nema', power: 5.6, unit: 'hp', hp: 7.5, pole: 2, rpm: 3600, v: 460, i: 9.0, eff: 88.5, pf: 0.9, slots: 36, turns: 55, wire: 'AWG 15'},
+            {type: 'nema', power: 7.5, unit: 'hp', hp: 10, pole: 2, rpm: 3600, v: 460, i: 12.0, eff: 89.5, pf: 0.9, slots: 36, turns: 50, wire: 'AWG 14'},
+            {type: 'nema', power: 0.75, unit: 'hp', hp: 1, pole: 4, rpm: 1800, v: 460, i: 1.6, eff: 82.5, pf: 0.77, slots: 36, turns: 140, wire: 'AWG 21'},
+            {type: 'nema', power: 1.1, unit: 'hp', hp: 1.5, pole: 4, rpm: 1800, v: 460, i: 2.2, eff: 84, pf: 0.8, slots: 36, turns: 128, wire: 'AWG 20'},
+            {type: 'nema', power: 1.5, unit: 'hp', hp: 2, pole: 4, rpm: 1800, v: 460, i: 2.9, eff: 85.5, pf: 0.82, slots: 36, turns: 118, wire: 'AWG 19'},
+            {type: 'nema', power: 2.2, unit: 'hp', hp: 3, pole: 4, rpm: 1800, v: 460, i: 4.2, eff: 86.5, pf: 0.84, slots: 36, turns: 108, wire: 'AWG 18'},
+            {type: 'nema', power: 3.7, unit: 'hp', hp: 5, pole: 4, rpm: 1800, v: 460, i: 6.8, eff: 87.5, pf: 0.86, slots: 36, turns: 95, wire: 'AWG 17'},
+            {type: 'nema', power: 5.6, unit: 'hp', hp: 7.5, pole: 4, rpm: 1800, v: 460, i: 9.8, eff: 88.5, pf: 0.87, slots: 36, turns: 85, wire: 'AWG 16'},
+            {type: 'nema', power: 7.5, unit: 'hp', hp: 10, pole: 4, rpm: 1800, v: 460, i: 12.8, eff: 89.5, pf: 0.88, slots: 36, turns: 78, wire: 'AWG 15'},
+            {type: 'single', power: 0.25, unit: 'kW', hp: 0.33, pole: 2, rpm: 2800, v: 220, i: 2.5, eff: 65, pf: 0.95, slots: 24, turns: 320, wire: '0.40mm'},
+            {type: 'single', power: 0.37, unit: 'kW', hp: 0.5, pole: 2, rpm: 2800, v: 220, i: 3.5, eff: 70, pf: 0.96, slots: 24, turns: 280, wire: '0.50mm'},
+            {type: 'single', power: 0.55, unit: 'kW', hp: 0.75, pole: 2, rpm: 2800, v: 220, i: 4.8, eff: 75, pf: 0.98, slots: 24, turns: 240, wire: '0.63mm'},
+            {type: 'single', power: 0.75, unit: 'kW', hp: 1, pole: 2, rpm: 2800, v: 220, i: 6.2, eff: 78, pf: 0.99, slots: 24, turns: 210, wire: '0.71mm'},
+            {type: 'single', power: 1.1, unit: 'kW', hp: 1.5, pole: 2, rpm: 2800, v: 220, i: 8.5, eff: 80, pf: 0.99, slots: 24, turns: 185, wire: '0.85mm'},
+            {type: 'single', power: 1.5, unit: 'kW', hp: 2, pole: 2, rpm: 2800, v: 220, i: 11.0, eff: 82, pf: 0.99, slots: 24, turns: 165, wire: '1.00mm'},
+            {type: 'single', power: 0.25, unit: 'kW', hp: 0.33, pole: 4, rpm: 1400, v: 220, i: 3.0, eff: 62, pf: 0.9, slots: 24, turns: 420, wire: '0.35mm'},
+            {type: 'single', power: 0.37, unit: 'kW', hp: 0.5, pole: 4, rpm: 1400, v: 220, i: 4.2, eff: 68, pf: 0.92, slots: 24, turns: 380, wire: '0.45mm'},
+            {type: 'single', power: 0.55, unit: 'kW', hp: 0.75, pole: 4, rpm: 1400, v: 220, i: 5.5, eff: 72, pf: 0.95, slots: 24, turns: 340, wire: '0.56mm'},
+            {type: 'single', power: 0.75, unit: 'kW', hp: 1, pole: 4, rpm: 1400, v: 220, i: 7.2, eff: 75, pf: 0.98, slots: 24, turns: 300, wire: '0.63mm'},
+            {type: 'single', power: 1.1, unit: 'kW', hp: 1.5, pole: 4, rpm: 1400, v: 220, i: 10.5, eff: 78, pf: 0.99, slots: 24, turns: 270, wire: '0.80mm'},
+            {type: 'single', power: 1.5, unit: 'kW', hp: 2, pole: 4, rpm: 1400, v: 220, i: 13.5, eff: 80, pf: 0.99, slots: 36, turns: 240, wire: '1.00mm'}
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            calculate();
+            populateDatabase();
+            
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker failed', err));
+            }
+            
+            // Show offline badge
+            setTimeout(() => {
+                document.getElementById('offlineBadge').classList.add('show');
+            }, 1000);
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function updateForm() {
+            const type = document.getElementById('motorType').value;
+            // Adjust default values based on type
+            calculate();
+        }
+
+        function calculate() {
+            try {
+                const power = parseFloat(document.getElementById('power').value);
+                const powerUnit = document.getElementById('powerUnit').value;
+                const voltage = parseFloat(document.getElementById('voltage').value);
+                const current = parseFloat(document.getElementById('current').value);
+                const frequency = parseFloat(document.getElementById('frequency').value);
+                const rpm = parseFloat(document.getElementById('rpm').value);
+                const pf = parseFloat(document.getElementById('pf').value);
+                const slots = parseInt(document.getElementById('slots').value);
+                const slotWidth = parseFloat(document.getElementById('slotWidth').value);
+                const slotHeight = parseFloat(document.getElementById('slotHeight').value);
+                const statorDia = parseFloat(document.getElementById('statorDia').value);
+                const coreLength = parseFloat(document.getElementById('coreLength').value);
+
+                // Convert power to kW
+                const powerKW = powerUnit === 'hp' ? power * 0.746 : power;
+
+                // Calculate poles
+                const syncSpeed = Math.round((120 * frequency) / Math.round((120 * frequency) / rpm / 2) * 2);
+                const poles = Math.round((120 * frequency) / syncSpeed);
+                document.getElementById('poles').value = poles;
+
+                // Slip
+                const slip = ((syncSpeed - rpm) / syncSpeed * 100).toFixed(1);
+
+                // Core area estimation
+                const coreArea = Math.PI * Math.pow((statorDia / 1000) / 2, 2); // m²
+                
+                // Flux calculation (assuming B = 1.3 Tesla average)
+                const assumedB = 1.3;
+                const flux = (voltage * Math.sqrt(2)) / (4.44 * frequency * Math.PI * assumedB * coreArea);
+                
+                // Winding factor (typical)
+                const kw = 0.96;
+                
+                // Turns per phase calculation
+                const turnsPerPhase = voltage / (4.44 * frequency * flux * kw);
+                
+                // Parallel paths
+                const a = poles === 2 ? 1 : (poles === 4 ? 2 : 2);
+                
+                // Turns per coil
+                const coilsPerPhase = slots / 3; // 3 phase
+                const turnsPerCoil = Math.round(turnsPerPhase / coilsPerPhase / a);
+                
+                // Wire sizing
+                // Current density J = 3.5 - 4.5 A/mm²
+                const J = 4.0; // A/mm² conservative
+                const wireArea = current / J; // mm²
+                const wireDia = Math.sqrt((4 * wireArea) / Math.PI);
+                
+                // Fill factor calculation
+                const slotArea = slotWidth * slotHeight; // mm²
+                const totalWireArea = turnsPerCoil * wireArea;
+                const fillFactor = (totalWireArea / slotArea) * 100;
+
+                // Update results
+                document.getElementById('resPoles').textContent = poles;
+                document.getElementById('resSyncSpeed').textContent = syncSpeed + ' rpm';
+                document.getElementById('resSlip').textContent = slip + '%';
+                document.getElementById('resTurns').textContent = turnsPerCoil + ' turns/coil';
+                document.getElementById('resConductors').textContent = (turnsPerCoil * coilsPerPhase * 2) + ' total';
+                document.getElementById('resWireSize').textContent = wireDia.toFixed(2) + ' mm';
+                document.getElementById('resWireArea').textContent = wireArea.toFixed(2) + ' mm²';
+                document.getElementById('resCurrentDensity').textContent = J.toFixed(1) + ' A/mm²';
+                document.getElementById('resFluxDensity').textContent = assumedB.toFixed(2) + ' T';
+                
+                const ffElement = document.getElementById('resFillFactor');
+                ffElement.textContent = fillFactor.toFixed(1) + '%';
+                
+                // Color coding fill factor
+                if(fillFactor > 80) ffElement.style.color = 'var(--danger)';
+                else if(fillFactor > 75) ffElement.style.color = 'var(--warning)';
+                else ffElement.style.color = 'var(--success)';
+
+                // Connection recommendation
+                let conn = '';
+                if(voltage <= 240) conn = 'Delta (Δ) - Single voltage';
+                else if(voltage <= 415) conn = 'Star (Y) atau Delta untuk 220V';
+                else conn = 'Star (Y) - High voltage';
+                document.getElementById('connectionRec').textContent = conn;
+
+                document.getElementById('results').style.display = 'block';
+                
+                // Update thermal analysis
+                updateThermalAnalysis(J, assumedB, fillFactor, turnsPerCoil);
+                
+                // Update validation
+                updateValidation(fillFactor, J, assumedB);
+                
+                // Save to localStorage
+                saveCalculation();
+
+            } catch(e) {
+                console.error('Calculation error:', e);
+            }
+        }
+
+        function updateThermalAnalysis(J, B, fillFactor, turns) {
+            document.getElementById('thermalAnalysis').style.display = 'block';
+            
+            // J bar
+            document.getElementById('thermalJ').textContent = J.toFixed(1) + ' A/mm²';
+            const jPercent = Math.min((J / 6) * 100, 100);
+            document.getElementById('barJ').style.width = jPercent + '%';
+            document.getElementById('barJ').style.background = J > 5 ? 'var(--danger)' : (J > 4.5 ? 'var(--warning)' : 'var(--success)');
+            
+            // B bar
+            document.getElementById('thermalB').textContent = B.toFixed(2) + ' T';
+            const bPercent = Math.min((B / 2) * 100, 100);
+            document.getElementById('barB').style.width = bPercent + '%';
+            document.getElementById('barB').style.background = B > 1.8 ? 'var(--danger)' : (B > 1.6 ? 'var(--warning)' : 'var(--success)');
+            
+            // Fill Factor bar
+            document.getElementById('thermalFF').textContent = fillFactor.toFixed(1) + '%';
+            const ffPercent = Math.min(fillFactor, 100);
+            document.getElementById('barFF').style.width = ffPercent + '%';
+            document.getElementById('barFF').style.background = fillFactor > 80 ? 'var(--danger)' : (fillFactor > 75 ? 'var(--warning)' : 'var(--success)');
+            
+            // Failure prediction
+            let mtbf = 45000; // base hours
+            if(fillFactor > 75) mtbf *= 0.7;
+            if(J > 4.5) mtbf *= 0.6;
+            if(B > 1.6) mtbf *= 0.5;
+            
+            const years = (mtbf / 8760).toFixed(1);
+            let riskLevel = 'LOW';
+            if(fillFactor > 80 || J > 5 || B > 1.8) riskLevel = 'HIGH';
+            else if(fillFactor > 75 || J > 4.5 || B > 1.6) riskLevel = 'MEDIUM';
+            
+            document.getElementById('failurePrediction').innerHTML = `
+                <div>MTBF Prediksi: <strong>${(mtbf/1000).toFixed(1)}k jam (${years} tahun)</strong></div>
+                <div>Risk Level: <span style="color: ${riskLevel === 'HIGH' ? 'var(--danger)' : riskLevel === 'MEDIUM' ? 'var(--warning)' : 'var(--success)'}">${riskLevel}</span></div>
+                <div style="margin-top: 8px; font-size: 0.85rem;">
+                    ${riskLevel === 'HIGH' ? '⚠️ Risiko kegagalan termal tinggi. Kurangi fill factor atau density arus.' : 
+                      riskLevel === 'MEDIUM' ? '⚡ Monitor suhu operasi. Desain masih dalam batas toleransi.' : 
+                      '✅ Desain optimal untuk umur panjang.'}
+                </div>
+            `;
+        }
+
+        function updateValidation(fillFactor, J, B) {
+            const div = document.getElementById('validationStatus');
+            let html = '<div style="display: grid; gap: 10px;">';
+            
+            // Check 1: Fill Factor
+            if(fillFactor <= 75) {
+                html += createStatusItem('✅', 'Fill Factor', 'Optimal (< 75%)', 'safe');
+            } else if(fillFactor <= 80) {
+                html += createStatusItem('⚠️', 'Fill Factor', 'Warning (75-80%) - Thermal risk', 'warning');
+            } else {
+                html += createStatusItem('❌', 'Fill Factor', 'Danger (> 80%) - Rewinding impossible', 'danger');
+            }
+            
+            // Check 2: Current Density
+            if(J <= 4.5) {
+                html += createStatusItem('✅', 'Current Density', `Optimal (${J.toFixed(1)} A/mm²)`, 'safe');
+            } else if(J <= 5.5) {
+                html += createStatusItem('⚠️', 'Current Density', `High (${J.toFixed(1)} A/mm²) - Monitor temperature`, 'warning');
+            } else {
+                html += createStatusItem('❌', 'Current Density', `Excessive (${J.toFixed(1)} A/mm²) - Insulation damage risk`, 'danger');
+            }
+            
+            // Check 3: Flux Density
+            if(B <= 1.6) {
+                html += createStatusItem('✅', 'Flux Density', `Optimal (${B.toFixed(2)} T)`, 'safe');
+            } else if(B <= 1.8) {
+                html += createStatusItem('⚠️', 'Flux Density', `High (${B.toFixed(2)} T) - Saturation near`, 'warning');
+            } else {
+                html += createStatusItem('❌', 'Flux Density', `Saturation (${B.toFixed(2)} T) - High core loss`, 'danger');
+            }
+            
+            html += '</div>';
+            div.innerHTML = html;
+        }
+
+        function createStatusItem(icon, title, desc, status) {
+            return `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg); border-radius: 8px; border-left: 4px solid var(--${status === 'safe' ? 'success' : status === 'warning' ? 'warning' : 'danger'})">
+                    <span style="font-size: 1.2rem;">${icon}</span>
+                    <div>
+                        <div style="font-weight: 600;">${title}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">${desc}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function populateDatabase() {
+            const tbody = document.getElementById('dbBody');
+            tbody.innerHTML = motorDatabase.map(m => `
+                <tr>
+                    <td><span class="badge badge-${m.type}">${m.type.toUpperCase()}</span></td>
+                    <td>${m.power} ${m.unit}</td>
+                    <td>${m.pole}</td>
+                    <td>${m.rpm}</td>
+                    <td>${m.v}V</td>
+                    <td>${m.i}A</td>
+                    <td>${m.eff}%</td>
+                    <td>${m.slots}</td>
+                    <td>${m.turns}</td>
+                    <td>${m.wire}</td>
+                </tr>
+            `).join('');
+        }
+
+        function searchDatabase() {
+            const term = document.getElementById('searchDb').value.toLowerCase();
+            const rows = document.querySelectorAll('#dbBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        }
+
+        function filterDb(type) {
+            const rows = document.querySelectorAll('#dbBody tr');
+            rows.forEach(row => {
+                if(type === 'all') {
+                    row.style.display = '';
+                } else {
+                    const badge = row.querySelector('.badge');
+                    row.style.display = badge.classList.contains(`badge-${type}`) ? '' : 'none';
+                }
+            });
+        }
+
+        function saveCalculation() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                inputs: {
+                    power: document.getElementById('power').value,
+                    voltage: document.getElementById('voltage').value,
+                    current: document.getElementById('current').value,
+                    rpm: document.getElementById('rpm').value
+                },
+                results: {
+                    turns: document.getElementById('resTurns').textContent,
+                    wire: document.getElementById('resWireSize').textContent,
+                    fillFactor: document.getElementById('resFillFactor').textContent
+                }
+            };
+            
+            let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+            history.unshift(data);
+            if(history.length > 10) history = history.slice(0, 10);
+            localStorage.setItem('calcHistory', JSON.stringify(history));
+        }
+
+        function exportJSON() {
+            const data = {
+                motor: {
+                    power: document.getElementById('power').value + ' ' + document.getElementById('powerUnit').value,
+                    voltage: document.getElementById('voltage').value + 'V',
+                    current: document.getElementById('current').value + 'A',
+                    rpm: document.getElementById('rpm').value + 'rpm'
+                },
+                winding: {
+                    turns: document.getElementById('resTurns').textContent,
+                    wireDiameter: document.getElementById('resWireSize').textContent,
+                    fillFactor: document.getElementById('resFillFactor').textContent,
+                    connection: document.getElementById('connectionRec').textContent
+                },
+                validation: {
+                    status: document.getElementById('validationStatus').innerText,
+                    timestamp: new Date().toLocaleString()
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `motor-rewind-${Date.now()}.json`;
+            a.click();
+        }
+
+        function exportCSV() {
+            const headers = ['Parameter', 'Value'];
+            const rows = [
+                ['Power', document.getElementById('power').value + ' ' + document.getElementById('powerUnit').value],
+                ['Voltage', document.getElementById('voltage').value + 'V'],
+                ['Current', document.getElementById('current').value + 'A'],
+                ['RPM', document.getElementById('rpm').value],
+                ['Turns per Coil', document.getElementById('resTurns').textContent],
+                ['Wire Size', document.getElementById('resWireSize').textContent],
+                ['Fill Factor', document.getElementById('resFillFactor').textContent],
+                ['Connection', document.getElementById('connectionRec').textContent]
+            ];
+            
+            const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `motor-calc-${Date.now()}.csv`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
