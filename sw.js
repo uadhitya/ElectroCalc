@@ -1,53 +1,64 @@
-const CACHE_NAME = 'electrocalci-v2';
+const CACHE_NAME = 'electrocalci-v4-ultimate';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json'
 ];
 
-// Install event
-self.addEventListener('install', (e) => {
-  e.waitUntil(
+// Install event - cache files
+self.addEventListener('install', (event) => {
+  event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then((cache) => {
+        console.log('[SW] Caching static assets v4');
+        return cache.addAll(STATIC_ASSETS);
+      })
       .then(() => self.skipWaiting())
+      .catch((err) => console.error('[SW] Cache failed:', err))
   );
 });
 
-// Fetch event - Cache First strategy
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if(cached) return cached;
-      
-      return fetch(e.request)
-        .then(response => {
-          // Cache new requests
-          if(response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(e.request, clone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Fallback untuk navigasi
-          if(e.request.mode === 'navigate') {
+// Fetch event - Network First strategy (update otomatis, tapi works offline)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Update cache dengan versi terbaru
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Fallback ke cache jika offline
+        return caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
+          return new Response('Offline - Resource not available', {
+            status: 503,
+            statusText: 'Service Unavailable'
+          });
         });
-    })
+      })
   );
 });
 
-// Activate event - Cleanup
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then(keys => {
+// Activate event - Clean old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
       );
     }).then(() => self.clients.claim())
   );
