@@ -1113,6 +1113,7 @@ const DataManager = {
     
     let projects = JSON.parse(localStorage.getItem('electrocalc_projects') || '[]');
     projects.push(data);
+    if(projects.length > 20) projects = projects.slice(-20); // Keep last 20
     localStorage.setItem('electrocalc_projects', JSON.stringify(projects));
     alert('Project "' + name + '" saved successfully!');
   },
@@ -1136,26 +1137,60 @@ const DataManager = {
   }
 };
 
-// Tambahkan tombol save di tab Export
+// Add buttons when DOM loaded
 document.addEventListener('DOMContentLoaded', () => {
+  // Only add if export tab exists
   const exportDiv = document.getElementById('export');
   if(exportDiv) {
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'secondary';
-    saveBtn.style.marginTop = '10px';
-    saveBtn.innerHTML = '💾 Save Project';
-    saveBtn.onclick = () => {
-      const name = prompt('Nama project:');
-      if(name) DataManager.saveProject(name);
-    };
-    exportDiv.querySelector('.card').appendChild(saveBtn);
-    
-    const backupBtn = document.createElement('button');
-    backupBtn.className = 'secondary';
-    backupBtn.style.marginTop = '10px';
-    backupBtn.innerHTML = '📦 Backup All Data';
-    backupBtn.onclick = () => DataManager.exportAll();
-    exportDiv.querySelector('.card').appendChild(backupBtn);
+    const card = exportDiv.querySelector('.card');
+    if(card) {
+      // Save Project button
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'secondary';
+      saveBtn.style.marginTop = '10px';
+      saveBtn.innerHTML = '💾 Save Project';
+      saveBtn.onclick = () => {
+        const name = prompt('Nama project:');
+        if(name) DataManager.saveProject(name);
+      };
+      card.appendChild(saveBtn);
+      
+      // Backup button
+      const backupBtn = document.createElement('button');
+      backupBtn.className = 'secondary';
+      backupBtn.style.marginTop = '10px';
+      backupBtn.innerHTML = '📦 Backup All Data';
+      backupBtn.onclick = () => DataManager.exportAll();
+      card.appendChild(backupBtn);
+      
+      // Load Projects button
+      const loadBtn = document.createElement('button');
+      loadBtn.className = 'secondary';
+      loadBtn.style.marginTop = '10px';
+      loadBtn.innerHTML = '📂 Load Saved Projects';
+      loadBtn.onclick = () => {
+        const projects = DataManager.loadProjects();
+        if(projects.length === 0) {
+          alert('No saved projects found!');
+          return;
+        }
+        let list = projects.map((p, i) => `${i+1}. ${p.name} (${new Date(p.date).toLocaleDateString()})`).join('\n');
+        const choice = prompt('Saved projects:\n' + list + '\n\nEnter number to load (or cancel):');
+        if(choice && projects[choice-1]) {
+          const p = projects[choice-1];
+          document.getElementById('power').value = p.inputs.power;
+          document.getElementById('voltage').value = p.inputs.voltage;
+          document.getElementById('current').value = p.inputs.current;
+          document.getElementById('rpm').value = p.inputs.rpm;
+          document.getElementById('slots').value = p.inputs.slots;
+          document.getElementById('statorDia').value = p.inputs.statorDia;
+          document.getElementById('coreLength').value = p.inputs.coreLength;
+          calculate(); // Recalculate
+          alert('Project loaded!');
+        }
+      };
+      card.appendChild(loadBtn);
+    }
   }
 });
 
