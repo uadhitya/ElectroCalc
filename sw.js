@@ -1,51 +1,52 @@
-const CACHE_NAME = 'electrocalci-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+const CACHE_NAME = 'electrocalci-v2';
+const STATIC_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
-// Install event - cache files
-self.addEventListener('install', event => {
-  event.waitUntil(
+// Install: Cache semua assets
+self.addEventListener('install', (e) => {
+  e.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache opened');
-        return cache.addAll(urlsToCache);
+        console.log('[SW] Caching assets');
+        return cache.addAll(STATIC_ASSETS);
       })
-      .catch(err => console.log('Cache failed:', err))
+      .catch(err => console.error('[SW] Cache failed:', err))
   );
   self.skipWaiting();
 });
 
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
+// Fetch: Network first, fallback ke cache
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    fetch(e.request)
       .then(response => {
-        // Return cached version or fetch new
-        if (response) {
-          return response;
-        }
-        return fetch(event.request)
-          .catch(() => {
-            // If both fail, return offline fallback
-            if (event.request.mode === 'navigate') {
-              return caches.match('/index.html');
-            }
+        // Update cache dengan versi terbaru
+        if (response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(e.request, clone);
           });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Offline: ambil dari cache
+        return caches.match(e.request)
+          .then(cached => cached || caches.match('./index.html'));
       })
   );
 });
 
-// Activate event - clean old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
+// Activate: Bersihkan cache lama
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys => {
       return Promise.all(
-        cacheNames
-          .filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+        keys.filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
       );
     })
   );
