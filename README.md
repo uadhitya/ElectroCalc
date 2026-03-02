@@ -1,4 +1,73 @@
 
+# ⚡ ElectroCalc Ultimate v4.0
+
+**Motor Rewinding Calculator dengan Geometric Constraint Solver dan Akurasi 90-95%**
+
+[![Version](https://img.shields.io/badge/version-4.0-blue.svg)](https://github.com/uadhitya/ElectroCalc)
+[![Accuracy](https://img.shields.io/badge/accuracy-90--95%25-success.svg)](https://uadhitya.github.io/ElectroCalc/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+## 🎯 Fitur Unggulan
+
+### 1. Geometric Constraint Solver
+- **Hard Limit Enforcement**: Tidak bisa generate hasil impossible (fill factor > 100%)
+- **Real-time Volume Check**: Visualisasi utilisasi slot secara geometris
+- **Physics-based Validation**: Perhitungan berdasarkan volume slot vs volume kawat
+
+### 2. Multi-Physics Engine
+Tiga rumus berbeda untuk tipe motor yang berbeda:
+- **3-Phase AC**: Rumus EMF (E = 4.44fNΦ) + Database interpolasi
+- **1-Phase AC**: Main/Auxiliary winding dengan ratio yang tepat
+- **DC Motor**: Armature equation (tanpa frekuensi)
+
+### 3. Hybrid Intelligence
+- **Database Lookup**: 150+ motor tervalidasi (Siemens, ABB, WEG)
+- **Interpolation**: Estimasi untuk motor antara data
+- **Physics Fallback**: Rumus fisika murni jika tidak ada data
+
+### 4. Honest Accuracy Reporting
+- **98% Confidence**: Exact database match
+- **93% Confidence**: Interpolasi dari data terdekat
+- **88% Confidence**: Perhitungan fisika murni
+- **Warning jika < 90%**: Transparan tentang keterbatasan
+
+## 🔧 Spesifikasi Teknis
+
+### Multi-Voltage Support
+- **220V**: Single Phase Domestic
+- **380V/400V**: 3-Phase Industrial (IEC)
+- **460V**: NEMA Industrial
+- **180V/240V**: DC Motors
+
+### Geometri yang Dihitung
+- Slot width/height efektif (dikurangi insulasi)
+- Core length & stacking factor
+- Packing factor round wire (72%)
+- Volume constraint validation
+
+### Validasi Real-time
+- **Fill Factor**: Optimal 60-80%, Warning > 85%, Rejected > 100%
+- **Current Density**: 3.5-5.0 A/mm² (tergantung tipe motor)
+- **Flux Density**: 1.2-1.6 Tesla (batas saturasi)
+
+## 🚀 Cara Pakai
+
+### Online (GitHub Pages)
+Buka: [https://uadhitya.github.io/ElectroCalc/](https://uadhitya.github.io/ElectroCalc/)
+
+### Install sebagai PWA (Offline)
+**Android:**
+1. Buka link di Chrome
+2. Menu → "Add to Home Screen"
+3. Install
+
+**iOS:**
+1. Buka di Safari
+2. Share → "Add to Home Screen"
+
+## 🧮 Cara Menggunakan
+
+### 1. Input Geometri (Wajib)
 ### 3. Interpretasi Hasil
 **✅ Feasible**: Fill factor 60-80% (optimal)
 **⚠️ Warning**: Fill factor 80-95% (hati-hati saat winding)
