@@ -1089,5 +1089,75 @@
             a.click();
         }
     </script>
+// Backup & Restore functionality
+const DataManager = {
+  saveProject(name) {
+    const data = {
+      name: name,
+      date: new Date().toISOString(),
+      inputs: {
+        power: document.getElementById('power').value,
+        voltage: document.getElementById('voltage').value,
+        current: document.getElementById('current').value,
+        rpm: document.getElementById('rpm').value,
+        slots: document.getElementById('slots').value,
+        statorDia: document.getElementById('statorDia').value,
+        coreLength: document.getElementById('coreLength').value
+      },
+      results: {
+        turns: document.getElementById('resTurns').textContent,
+        wire: document.getElementById('resWireSize').textContent,
+        fillFactor: document.getElementById('resFillFactor').textContent
+      }
+    };
+    
+    let projects = JSON.parse(localStorage.getItem('electrocalc_projects') || '[]');
+    projects.push(data);
+    localStorage.setItem('electrocalc_projects', JSON.stringify(projects));
+    alert('Project "' + name + '" saved successfully!');
+  },
+  
+  loadProjects() {
+    return JSON.parse(localStorage.getItem('electrocalc_projects') || '[]');
+  },
+  
+  exportAll() {
+    const data = {
+      projects: this.loadProjects(),
+      database: motorDatabase,
+      exportDate: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'electrocalci-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+  }
+};
+
+// Tambahkan tombol save di tab Export
+document.addEventListener('DOMContentLoaded', () => {
+  const exportDiv = document.getElementById('export');
+  if(exportDiv) {
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'secondary';
+    saveBtn.style.marginTop = '10px';
+    saveBtn.innerHTML = '💾 Save Project';
+    saveBtn.onclick = () => {
+      const name = prompt('Nama project:');
+      if(name) DataManager.saveProject(name);
+    };
+    exportDiv.querySelector('.card').appendChild(saveBtn);
+    
+    const backupBtn = document.createElement('button');
+    backupBtn.className = 'secondary';
+    backupBtn.style.marginTop = '10px';
+    backupBtn.innerHTML = '📦 Backup All Data';
+    backupBtn.onclick = () => DataManager.exportAll();
+    exportDiv.querySelector('.card').appendChild(backupBtn);
+  }
+});
+
 </body>
 </html>
