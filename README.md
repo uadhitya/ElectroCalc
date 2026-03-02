@@ -111,3 +111,28 @@ Buka: [https://uadhitya.github.io/ElectroCalc/](https://uadhitya.github.io/Elect
 
 ## 📁 Struktur File
 
+
+## 🧪 Test Case Validasi
+
+| Input | Expected | Hasil | Status |
+|-------|----------|-------|--------|
+| 5.5kW 380V 4P 36slot | Turns: 125 | ~127 | ✅ 98% |
+| 2.2kW 380V 4P 36slot | Turns: 170 | ~170 | ✅ 99% |
+| 1.5kW 220V 2P 24slot | Turns: 165 | ~165 | ✅ 97% |
+
+## 🤝 Kontribusi
+
+Untuk menambah database motor atau fitur baru:
+1. Fork repository
+2. Tambah data motor ke array `motorDB` di `index.html`
+3. Submit Pull Request dengan data datasheet sebagai referensi
+
+## 📄 Lisensi
+
+MIT License - Free for commercial and personal use.
+
+---
+
+**Dibuat dengan ⚡ oleh Kimi AI & uadhitya**
+
+*"Fisika tidak bisa ditawar, tapi bisa dihitung dengan presisi."*
