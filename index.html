@@ -975,5 +975,309 @@
             }
         });
     </script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- CSS ElectroAI - TAMBAHKAN DI SINI (dalam <head>) -->
+    <style>
+        .ai-chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: #1a1a2e;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            font-family: 'Segoe UI', sans-serif;
+            z-index: 9999;
+            overflow: hidden;
+            border: 1px solid #16213e;
+        }
+        .ai-chat-header {
+            background: #16213e;
+            padding: 12px 16px;
+            color: #fff;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .ai-chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 16px;
+            background: #0f3460;
+            display: none; /* Mulai tertutup */
+        }
+        .ai-chat-messages.active {
+            display: block;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .user-message {
+            background: #e94560;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .ai-message {
+            background: #1a1a2e;
+            color: #eaeaea;
+            border: 1px solid #16213e;
+        }
+        .ai-chat-input {
+            display: none; /* Hidden saat chat minimize */
+            padding: 12px;
+            background: #16213e;
+            gap: 8px;
+        }
+        .ai-chat-input.active {
+            display: flex;
+        }
+        .ai-chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #0f3460;
+            background: #0f3460;
+            color: white;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.9em;
+        }
+        .send-btn {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .calc-result {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #e94560;
+            margin-top: 5px;
+        }
+        .calc-result h4 {
+            margin: 0 0 8px 0;
+            color: #e94560;
+            font-size: 0.85em;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .metric {
+            background: #0f3460;
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        .metric label {
+            display: block;
+            font-size: 0.7em;
+            color: #a0a0a0;
+            margin-bottom: 2px;
+        }
+        .metric value {
+            display: block;
+            font-weight: bold;
+            color: #fff;
+            font-size: 1.1em;
+        }
+        .rec-item {
+            font-size: 0.8em;
+            color: #ffd700;
+            padding: 4px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+    </style>
+    
+    <!-- Title dan meta yang sudah ada -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroCalc - Motor Rewinding Calculator</title>
+</head>
+<body>
+    <!-- KONTEN ELECTROCALC ANDA YANG SUDAH ADA (form, tabel, dll) -->
+    
+    <!-- TAMBAHKAN INI SEBELUM </body> -->
+    
+    <!-- Chat Interface -->
+    <div id="electro-ai-chat" class="ai-chat-container">
+        <div class="ai-chat-header" onclick="toggleChat()">
+            <span>⚡ ElectroAI Assistant</span>
+            <button class="toggle-btn" id="chat-toggle">+</button>
+        </div>
+        <div class="ai-chat-messages" id="chat-messages">
+            <div class="message ai-message">
+                <strong>Halo!</strong> Saya bisa bantu hitung rewinding motor.<br>
+                Coba ketik: <em>"Hitung motor 5HP 380V 3 phase"</em>
+            </div>
+        </div>
+        <div class="ai-chat-input" id="chat-input">
+            <input type="text" id="ai-input" placeholder="Contoh: 3HP 220V 1 phase..." 
+                   onkeypress="if(event.key==='Enter') sendQuery()">
+            <button onclick="sendQuery()" class="send-btn">➤</button>
+        </div>
+    </div>
+
+    <!-- JavaScript ElectroAI -->
+    <script>
+        // ElectroAI Engine (Paste seluruh kode JS dari pesan sebelumnya di sini)
+        // [PASTE CODE electro-ai.js DI SINI]
+        
+        // Versi Minimal (jika tidak mau file terpisah):
+        class ElectroAI {
+            constructor() {
+                this.WIRE_TABLE = [
+                    {gauge: 'SWG 18', dia: 1.219, area: 1.167},
+                    {gauge: 'SWG 17', dia: 1.422, area: 1.589},
+                    {gauge: 'SWG 16', dia: 1.626, area: 2.075},
+                    {gauge: 'AWG 14', dia: 1.628, area: 2.081},
+                    {gauge: 'AWG 13', dia: 1.828, area: 2.624}
+                ];
+            }
+            
+            async processQuery(input) {
+                // Extract HP
+                const hpMatch = input.match(/(\d+\.?\d*)\s*(hp|pk)/i);
+                const voltMatch = input.match(/(\d+)\s*v/i);
+                const phaseMatch = input.match(/(\d)\s*(phase|fasa)/i) || [null, 3];
+                
+                if (!hpMatch) return {
+                    type: 'conceptual',
+                    content: 'Masukkan spesifikasi motor:<br>Contoh: <code>5HP 380V 3phase</code> atau <code>2HP 220V 1phase</code>'
+                };
+                
+                const hp = parseFloat(hpMatch[1]);
+                const volt = voltMatch ? parseInt(voltMatch[1]) : 380;
+                const phase = parseInt(phaseMatch[1]);
+                
+                // Hitung
+                const kw = hp * 0.746;
+                const current = phase === 3 
+                    ? (kw * 1000) / (volt * 0.85 * 0.85 * 1.732)
+                    : (kw * 1000) / (volt * 0.85 * 0.85);
+                
+                const wireArea = current / 4;
+                const wireDia = Math.sqrt((4 * wireArea) / Math.PI);
+                
+                // Cari wire standard
+                let bestWire = this.WIRE_TABLE[0];
+                let minDiff = Math.abs(wireDia - bestWire.dia);
+                
+                for (let w of this.WIRE_TABLE) {
+                    const diff = Math.abs(wireDia - w.dia);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        bestWire = w;
+                    }
+                }
+                
+                const syncSpeed = (120 * 50) / 4; // Asumsi 4 pole
+                const turns = Math.round((volt * 0.9) / 3.5 / 12); // Approximation
+                
+                return {
+                    type: 'calculation',
+                    title: `Hasil: ${hp}HP ${volt}V ${phase}Phase`,
+                    data: {
+                        arus: Math.round(current),
+                        kawat: bestWire.gauge,
+                        diameter: wireDia.toFixed(2),
+                        lilitan: turns,
+                        rpm: syncSpeed
+                    }
+                };
+            }
+        }
+        
+        const electroAI = new ElectroAI();
+        let chatOpen = false;
+        
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            document.getElementById('chat-messages').classList.toggle('active', chatOpen);
+            document.getElementById('chat-input').classList.toggle('active', chatOpen);
+            document.getElementById('chat-toggle').textContent = chatOpen ? '−' : '+';
+        }
+        
+        async function sendQuery() {
+            const input = document.getElementById('ai-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            addMessage(msg, 'user');
+            input.value = '';
+            
+            const res = await electroAI.processQuery(msg);
+            
+            let html = '';
+            if (res.type === 'calculation') {
+                html = `
+                    <div class="calc-result">
+                        <h4>${res.title}</h4>
+                        <div class="metric-grid">
+                            <div class="metric">
+                                <label>Arus</label>
+                                <value>${res.data.arus} A</value>
+                            </div>
+                            <div class="metric">
+                                <label>Kawat</label>
+                                <value>${res.data.kawat}</value>
+                            </div>
+                            <div class="metric">
+                                <label>ØKawat</label>
+                                <value>${res.data.diameter} mm</value>
+                            </div>
+                            <div class="metric">
+                                <label>Lilitan</label>
+                                <value>${res.data.lilitan}</value>
+                            </div>
+                        </div>
+                        <small style="color:#888">RPM: ${res.data.rpm} (4 pole)</small>
+                    </div>
+                `;
+            } else {
+                html = res.content;
+            }
+            
+            addMessage(html, 'ai');
+        }
+        
+        function addMessage(content, sender) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `message ${sender}-message`;
+            div.innerHTML = content;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>
+
 </body>
 </html>
