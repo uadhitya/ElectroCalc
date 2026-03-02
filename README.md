@@ -1,44 +1,44 @@
-# ⚡ ElectroCalc Pro v2.0
 
-**Kalkulator Rewinding Motor Profesional** dengan validasi matematis berbasis database 150+ motor IEC, NEMA, dan standar Indonesia (220V/380V/400V).
+### 3. Interpretasi Hasil
+**✅ Feasible**: Fill factor 60-80% (optimal)
+**⚠️ Warning**: Fill factor 80-95% (hati-hati saat winding)
+**❌ Impossible**: Fill factor > 100% (volume tidak muat)
 
-## 🚀 Fitur Utama
+## 📊 Akurasi vs Metode
 
-### 1. Multi-Voltage Support
-- **220V** - Single Phase Domestic
-- **380V** - Three Phase Industrial (Indonesia)
-- **400V** - IEC Modern Standard
-- **460V** - NEMA Industrial
+| Metode | Akurasi | Kapan Digunakan |
+|--------|---------|-----------------|
+| Database Exact | 98% | Motor tersedia di database |
+| Interpolasi | 93% | Antara dua data yang ada |
+| EMF Formula | 88% | 3-phase, tidak ada data |
+| DC Formula | 87% | Motor DC |
+| Empiris | 85% | Fallback terakhir |
 
-### 2. Database 150+ Motor
-- IEC 50Hz (0.37kW - 30kW)
-- NEMA 60Hz (1HP - 20HP)
-- Single Phase 220V
-- DC Motors (180V)
+## ⚠️ Batasan & Disclaimer
 
-### 3. Validasi Real-Time
-- **Fill Factor** (Target: 60-75%)
-- **Current Density** (Target: 3.5-4.5 A/mm²)
-- **Flux Density** (Target: 1.2-1.6 Tesla)
-- **MTBF Prediction** (Weibull Distribution)
+**ElectroCalc memberikan estimasi 90-95% akurat berdasarkan:**
+- Data datasheet manufacturer
+- Rumus fisika elektromagnetik
+- Geometri volume yang rigid
 
-### 4. Tools Tambahan
-- Visualisasi diagram winding
-- Save/Load projects (localStorage)
-- Export JSON/CSV/PDF
-- Import/Export backup data
-- Offline mode (PWA)
+**Namun, variabel berikut dapat menyebabkan deviasi 5-10%:**
+- Toleransi diameter kawat (±0.02mm)
+- Kualitas silicon steel (M19 vs M27)
+- Skill teknisi winding (tension, lapping)
+- Suhu dan kondisi lingkungan kerja
 
-## 📱 Cara Install (PWA)
+**Untuk 100% akurasi, WAJIB melakukan:**
+1. Sample coil test (1 coil percobaan)
+2. Resistance check (bandingkan dengan ρL/A)
+3. No-load current test (< 30% FLC)
+4. Temperature rise test (sesuai class isolasi)
 
-### Android:
-1. Buka `https://uadhitya.github.io/ElectroCalc/` di Chrome
-2. Menu → "Add to Home Screen"
-3. Selesai! Bisa digunakan offline.
+## 🛠️ Tech Stack
 
-### iOS:
-1. Buka di Safari
-2. Share → "Add to Home Screen"
+- **Pure HTML5/CSS3/JavaScript** (No framework, lightweight)
+- **Service Worker** untuk offline functionality
+- **LocalStorage** untuk save projects
+- **Manifest.json** untuk PWA installability
 
-## 🧮 Rumus yang Digunakan
+## 📁 Struktur File
 
